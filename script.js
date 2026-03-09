@@ -1,4 +1,4 @@
-const CARD = document.querySelector('.bunny-wrap');
+const card = document.querySelector('.bunny-wrap');
 
 const CONFIG = {
   proximity: 60,
@@ -7,26 +7,28 @@ const CONFIG = {
   opacity: 0,
 };
 
-CARD.style.setProperty('--spread', CONFIG.spread);
-CARD.style.setProperty('--blur', CONFIG.blur);
+card.style.setProperty('--spread', CONFIG.spread);
+card.style.setProperty('--blur', CONFIG.blur);
 
-document.body.addEventListener('pointermove', (event) => {
-  const bounds = CARD.getBoundingClientRect();
+function update(x, y) {
+  document.documentElement.style.setProperty('--mx', `${x}px`);
+  document.documentElement.style.setProperty('--my', `${y}px`);
 
-  if (
-    event.x > bounds.left - CONFIG.proximity &&
-    event.x < bounds.left + bounds.width + CONFIG.proximity &&
-    event.y > bounds.top - CONFIG.proximity &&
-    event.y < bounds.top + bounds.height + CONFIG.proximity
-  ) {
-    CARD.style.setProperty('--active', 1);
-  } else {
-    CARD.style.setProperty('--active', CONFIG.opacity);
-  }
+  const bounds = card.getBoundingClientRect();
+  const near =
+    x > bounds.left - CONFIG.proximity &&
+    x < bounds.right + CONFIG.proximity &&
+    y > bounds.top - CONFIG.proximity &&
+    y < bounds.bottom + CONFIG.proximity;
+  card.style.setProperty('--active', near ? 1 : CONFIG.opacity);
 
-  const centerX = bounds.left + bounds.width * 0.5;
-  const centerY = bounds.top + bounds.height * 0.5;
-  let angle = Math.atan2(event.y - centerY, event.x - centerX) * 180 / Math.PI;
+  const cx = bounds.left + bounds.width * 0.5;
+  const cy = bounds.top + bounds.height * 0.5;
+  let angle = Math.atan2(y - cy, x - cx) * 180 / Math.PI;
   if (angle < 0) angle += 360;
-  CARD.style.setProperty('--start', angle + 90);
-});
+  card.style.setProperty('--start', angle + 90);
+}
+
+document.body.addEventListener('pointermove', (e) => update(e.clientX, e.clientY));
+
+document.body.addEventListener('contextmenu', (e) => e.preventDefault());
